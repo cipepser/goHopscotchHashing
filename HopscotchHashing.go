@@ -8,12 +8,15 @@ import (
 	"math/big"
 )
 
-const (
-	N      int64 = 100000 // テーブルの大きさ
-	bmSize       = 32     // bitmapのサイズ
+var (
+	N int64 = 10 // テーブルの大きさ
 )
 
-func hash(key int64) (h1, h2 int64) {
+const (
+	H = 2 // bitmapのサイズ
+)
+
+func hash(key int64) int64 {
 	hasher := md5.New()
 
 	b := make([]byte, 8)
@@ -22,40 +25,74 @@ func hash(key int64) (h1, h2 int64) {
 
 	h := hex.EncodeToString(hasher.Sum(nil))
 
-	t1, _ := new(big.Int).SetString(h[:int(len(h)/2)], 16)
-	t2, _ := new(big.Int).SetString(h[int(len(h)/2):], 16)
+	t, _ := new(big.Int).SetString(h, 16)
 
-	h1 = t1.Rem(t1, big.NewInt(N)).Int64()
-	h2 = t2.Rem(t2, big.NewInt(N)).Int64()
-
-	return h1, h2
+	return t.Rem(t, big.NewInt(N)).Int64()
 }
 
-type Hopscotch struct {
+type bucket struct {
 	item   int64
-	bitmap [bmSize]bool
+	bitmap [H]bool
 }
 
-func NewHopscotch() *Hopscotch {
-	return new(Hopscotch)
+type Hopscotch []bucket
+
+func NewHopscotch() Hopscotch {
+	h := Hopscotch(make([]bucket, N))
+	return h
 }
 
-func (h *Hopscotch) Lookup(key int64) bool {
+// func (h *Hopscotch) Lookup(key int64) bool {
+func (h Hopscotch) Lookup(key int64) bool {
 
 	return false
 }
 
-func (h *Hopscotch) Insert(key int64) {
+func (h Hopscotch) Insert(key int64) {
+	idx := int(hash(key))
+
+	fmt.Println(idx)
+
+	for i := idx; ; i++ {
+		// if h[i%int(N)].item == 0 {
+		if h[i].item == 0 {
+			if i > idx+H-1 {
+				for j := i - H + 1; ; j++ {
+					for k, b := range h[j].bitmap {
+						if b {
+							h[i].item = h[j+k].item
+						}
+					}
+				}
+			}
+
+			h[i%int(N)].item = key
+			break
+		}
+
+	}
+
+	// for i := 0; i < H; i++ {
+	// 	if h[(idx+i)%int(N)].item == 0 {
+	// 		h[(idx+i)%int(N)].item = key
+	// 		break
+	// 	}
+	//
+	//   if i == H - 1 {
+	//
+	//   }
+	// }
+
 }
 
-func (h *Hopscotch) Delete(key int64) {
+func (h Hopscotch) Delete(key int64) {
 	return
 }
 
 func main() {
 	h := NewHopscotch()
 
-	keys := []int64{1, 2, 3, 4, 5}
+	keys := []int64{1, 2, 3, 4, 5, 6, 7}
 
 	for _, k := range keys {
 		h.Insert(k)
@@ -67,4 +104,13 @@ func main() {
 	h.Delete(1)
 
 	fmt.Println(h.Lookup(1))
+
+	fmt.Println("---------------")
+	// for _, k := range keys {
+	// 	fmt.Println(hash(k))
+	// }
+	for _, v := range h {
+		fmt.Println(v)
+	}
+
 }
