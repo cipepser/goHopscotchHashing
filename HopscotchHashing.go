@@ -68,7 +68,7 @@ func (h Hopscotch) Insert(key int64) error {
 	i := idx + 1
 	for h[i].item != 0 {
 		i++
-		if i > int(N) {
+		if i >= int(N) {
 			return errors.New("no empty bucket, you have to reconstruct backets with larger N.")
 		}
 	}
