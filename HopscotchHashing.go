@@ -45,6 +45,13 @@ func NewHopscotch() Hopscotch {
 
 // func (h *Hopscotch) Lookup(key int64) bool {
 func (h Hopscotch) Lookup(key int64) bool {
+	idx := int(hash(key))
+
+	for i := 0; i < H; i++ {
+		if h[idx+i].item == key {
+			return true
+		}
+	}
 
 	return false
 }
