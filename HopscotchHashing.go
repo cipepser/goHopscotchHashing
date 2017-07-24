@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"math/big"
 )
 
@@ -47,7 +48,7 @@ func NewHopscotch() Hopscotch {
 func (h Hopscotch) Lookup(key int64) bool {
 	idx := int(hash(key))
 
-	for i := 0; i < H; i++ {
+	for i := 0; i < int(math.Min(float64(int(N)-idx), float64(H))); i++ {
 		if h[idx+i].item == key {
 			return true
 		}
@@ -115,8 +116,13 @@ func main() {
 		h.Insert(k)
 	}
 
+	fmt.Println("*************")
 	fmt.Println(h.Lookup(0))
-	fmt.Println(h.Lookup(1))
+	for _, k := range keys {
+		fmt.Println(h.Lookup(k))
+	}
+	fmt.Println(h.Lookup(8))
+	fmt.Println("*************")
 
 	h.Delete(1)
 
