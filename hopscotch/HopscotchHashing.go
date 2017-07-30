@@ -5,12 +5,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"math"
 	"math/big"
 )
 
 var (
-	N int64 = 100 // テーブルの大きさ
+	N int64 = 10 // テーブルの大きさ
 )
 
 const (
@@ -47,8 +46,9 @@ func NewHopscotch() Hopscotch {
 func (h Hopscotch) Lookup(key int64) bool {
 	idx := int(hash(key))
 
-	for i := 0; i < int(math.Min(float64(int(N)-idx), float64(H))); i++ {
-		if h[idx+i].item == key {
+	// for i := 0; i < int(math.Min(float64(int(N)-idx), float64(H))); i++ {
+	for i := 0; i < H; i++ {
+		if h[(idx+i)%int(N)].item == key {
 			return true
 		}
 	}
@@ -68,14 +68,14 @@ func (h Hopscotch) Insert(key int64) error {
 	i := idx + 1
 	for h[i%int(N)].item != 0 {
 		i++
-		if i >= int(N) {
-			return errors.New("no empty bucket, you have to reconstruct backets with larger N.")
+		if i%int(N) == idx-1 {
+			return errors.New("no empty bucket, you have to reconstruct backets with larger table size more than N.")
 		}
 	}
 
 	// be able to insert the key within H-1
 	if i < idx+H-1 {
-		h[i].item = key
+		h[i%int(N)].item = key
 		h[idx].bitmap[i-idx] = true
 		return nil
 	}
@@ -84,11 +84,11 @@ func (h Hopscotch) Insert(key int64) error {
 	j := i - H + 1
 	for i > idx+H-1 {
 		k := 0
-		for l, b := range h[j].bitmap {
+		for l, b := range h[j%int(N)].bitmap {
 			if b {
 				k = l
-				h[j].bitmap[k], h[j].bitmap[H-1] = h[j].bitmap[H-1], h[j].bitmap[k]
-				h[j+k].item, h[j+H-1].item = h[j+H-1].item, h[j+k].item
+				h[j%int(N)].bitmap[k], h[j%int(N)].bitmap[H-1] = h[j%int(N)].bitmap[H-1], h[j%int(N)].bitmap[k]
+				h[(j+k)%int(N)].item, h[(j+H-1)%int(N)].item = h[(j+H-1)%int(N)].item, h[(j+k)%int(N)].item
 				break
 			}
 		}
@@ -97,7 +97,7 @@ func (h Hopscotch) Insert(key int64) error {
 	}
 
 	h[idx].bitmap[0], h[idx].bitmap[i-idx] = h[idx].bitmap[i-idx], h[idx].bitmap[0]
-	h[idx].item, h[i].item = h[i].item, h[idx].item
+	h[idx].item, h[i%int(N)].item = h[i%int(N)].item, h[idx].item
 
 	return nil
 }
@@ -105,9 +105,10 @@ func (h Hopscotch) Insert(key int64) error {
 func (h Hopscotch) Delete(key int64) {
 	idx := int(hash(key))
 
-	for i := 0; i < int(math.Min(float64(int(N)-idx), float64(H))); i++ {
-		if h[idx+i].item == key {
-			h[idx+i].item = 0
+	// for i := 0; i < int(math.Min(float64(int(N)-idx), float64(H))); i++ {
+	for i := 0; i < H; i++ {
+		if h[(idx+i)%int(N)].item == key {
+			h[(idx+i)%int(N)].item = 0
 			h[idx].bitmap[i] = false
 		}
 	}

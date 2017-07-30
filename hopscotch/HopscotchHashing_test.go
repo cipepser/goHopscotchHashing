@@ -1,17 +1,6 @@
 package hopscotch
 
-import (
-	"fmt"
-	"testing"
-)
-
-func TestInsert(t *testing.T) {
-	h := NewHopscotch()
-
-	h.Insert(1)
-	fmt.Println(h)
-
-}
+import "testing"
 
 func TestLookup(t *testing.T) {
 	h := NewHopscotch()
@@ -24,7 +13,12 @@ func TestLookup(t *testing.T) {
 	}
 
 	// multiple keys
-	keys := []int64{2, 3, 4, 5, 6, 7}
+	// keys := []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	keys := make([]int64, 40)
+	for k := 1; k <= int(40); k++ {
+		keys[k-1] = int64(k)
+	}
+
 	for _, k := range keys {
 		h.Insert(k)
 	}
@@ -36,9 +30,9 @@ func TestLookup(t *testing.T) {
 	}
 
 	// not exist key
-	isExists = h.Lookup(0)
+	isExists = h.Lookup(999)
 	if isExists {
-		t.Error("0 is found.")
+		t.Error("999 is found.")
 	}
 }
 
@@ -54,7 +48,11 @@ func TestDelete(t *testing.T) {
 	}
 
 	// multiple keys
-	keys := []int64{2, 3, 4, 5, 6, 7}
+	// keys := []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	keys := make([]int64, 40)
+	for k := 1; k <= int(40); k++ {
+		keys[k-1] = int64(k)
+	}
 	for _, k := range keys {
 		h.Insert(k)
 	}
