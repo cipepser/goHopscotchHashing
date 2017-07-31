@@ -80,7 +80,7 @@ func (h Hopscotch) Insert(key int64) error {
 		return nil
 	}
 
-	// back an empty backet util it has the index within H-1 from idx
+	// back to an empty backet util encounts the index within H-1 from the idx
 	j := i - H + 1
 	for i > idx+H-1 {
 		k := 0
