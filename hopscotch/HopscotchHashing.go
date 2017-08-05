@@ -5,12 +5,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"math/big"
 )
 
 var (
-	N int64 = 20 // テーブルの大きさ
+	N int64 = 10 // テーブルの大きさ
 )
 
 const (
@@ -47,21 +46,15 @@ func (h Hopscotch) Reconstruct() Hopscotch {
 	N = N * 2
 	nh := Hopscotch(make([]bucket, N))
 
-	fmt.Println("------------")
 	for _, b := range h {
 		if b.item != 0 {
-			fmt.Println(b.item)
 			err := nh.Insert(b.item)
-			if err != nil {
+			for err != nil {
 				nh = nh.Reconstruct()
+				err = nh.Insert(b.item)
 			}
 		}
 	}
-
-	for i, b := range nh {
-		fmt.Println(i, ":", b)
-	}
-	fmt.Println("~~~~~~~~~~~~")
 
 	return nh
 }
