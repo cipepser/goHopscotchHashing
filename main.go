@@ -8,34 +8,20 @@ import (
 
 func main() {
 	h := hopscotch.NewHopscotch()
-	// h.Insert(1)
-	// h.Insert(2)
-	// h.Insert(3)
-	// h.Insert(4)
-	// h.Insert(5)
-	//
-	keys := make([]int64, hopscotch.N)
-	for k := 1; k <= int(hopscotch.N); k++ {
-		keys[k-1] = int64(k)
-	}
-	// fmt.Println(keys)
 
-	for _, k := range keys {
-		err := h.Insert(k)
-		if err != nil {
-			// log.Fatal(err)
+	for i := 0; i < 10; i++ {
+		err := h.Insert(int64(i + 1))
+		for err != nil {
 			h = h.Reconstruct()
+			err = h.Insert(int64(i + 1))
 		}
 
-		for i, b := range h {
-			fmt.Println(i, ":", b)
+		fmt.Println("-----------------------------")
+		fmt.Println("No. \t| bucket")
+		fmt.Println("-----------------------------")
+		for j, b := range h {
+			fmt.Println(j, "\t| ", b)
 		}
-		fmt.Println("~~~~~~~~~~~~")
+		fmt.Println("")
 	}
-
-	fmt.Println(len(h))
-	for i, b := range h {
-		fmt.Println(i, ":", b)
-	}
-
 }
