@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -46,11 +47,21 @@ func (h Hopscotch) Reconstruct() Hopscotch {
 	N = N * 2
 	nh := Hopscotch(make([]bucket, N))
 
+	fmt.Println("------------")
 	for _, b := range h {
 		if b.item != 0 {
-			nh.Insert(b.item)
+			fmt.Println(b.item)
+			err := nh.Insert(b.item)
+			if err != nil {
+				nh = nh.Reconstruct()
+			}
 		}
 	}
+
+	for i, b := range nh {
+		fmt.Println(i, ":", b)
+	}
+	fmt.Println("~~~~~~~~~~~~")
 
 	return nh
 }
